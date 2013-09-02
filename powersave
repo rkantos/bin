@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo powertop --csv=out.csv --time=5
+sudo rm out.csv
+

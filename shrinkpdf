@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# TODO
+# usage
+# error checking
+
+if [ ! $# -gt 1 ] ; then
+	echo "ERROR: $0 input output"
+	exit 1
+fi
+
+gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=$2 $1

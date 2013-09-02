@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+if ($#ARGV + 1 < 2) {
+	print "Usage: css-inline css html\n";
+	exit;
+}
+
+local $/;
+
+open(FILE, $ARGV[0]) or die "Couldn't open file: $!";
+my $css = <FILE>;
+close FILE;
+
+open(FILE, $ARGV[1]) or die "Couldn't open file: $!";
+my $html = <FILE>;
+close FILE;
+
+my %classes = ($css =~ m/\#([^\s{]+)\s*{([^}]+)}/g);
+while (my ($name, $class) = each(%classes)) {
+	$class =~ s/(^\s+|\s+$)//mg;
+	$class =~ s/\s+/ /g;
+	$classes{$name} = $class;
+}
+
+my @matches = ($html =~ m/class="([^"]+)"/g);
+foreach my $match (@matches) {
+	my $old = $match;
+	my @cl;
+	my @st;
+	$match =~ s/\s+/ /g;
+	my @cnames = split(/\s/, $match);
+	foreach my $cname (@cnames) {
+		if (grep {$_ eq $cname} keys %classes) {
+			push (@st, $cname);
+		} else {
+			push (@cl, $cname);
+		}
+	}
+
+	my $new;
+	if ($#cl + 1 > 0) {
+		$new = $new . "class=\"";
+		foreach my $c (@cl) {
+			$new = $new . $c;
+		}
+		$new = $new . "\" ";
+	}
+
+	if ($#st + 1 > 0) {
+		$new = $new . "style=\"";
+		foreach my $s (@st) {
+			my $n = $classes{$s};
+			if (substr($n, -1) ne ";") {
+				$n = $n . ";";
+			}
+			$new = $new . $n;
+		}
+		$new = $new . "\"";
+	}
+
+	$html =~ s/class="$old"/$new/g;
+}
+
+print $html;
+
