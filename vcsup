@@ -1,0 +1,20 @@
+#!/bin/bash
+for d in `find ~/src -name '.git'`; do p=$(dirname $d); cd $p; echo "$(basename $p) ..."; git pull; done
+
+#[ -z $1 ] && PATH='~/src'
+#
+#
+#for d in `find $PATH -name '.git'`; do
+#  p=$(dirname $d)
+#  pushd $p >/dev/null
+#  echo Updating $(basename $p) ...
+#  r=$(git pull)
+#  if [ $? -eq 0 ]; then
+#    [ "$r" == "Already up-to-date." ] && echo $r
+#  else
+#    echo Error updating $p !
+#  fi
+#  popd >/dev/null
+#done
+#
+#echo Done.
