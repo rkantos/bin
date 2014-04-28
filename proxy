@@ -1,3 +1,5 @@
 #!/bin/bash
 
-ssh -C2qTnN -D 8081 spoof@givemegames.de
+screen -S proxy ssh -C2qTnN -D 8081 spoof@givemegames.de
+
+screen -dmS ff proxychains firefox
