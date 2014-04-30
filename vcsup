@@ -1,5 +1,14 @@
 #!/bin/bash
-for d in `find ~/src -name '.git'`; do p=$(dirname $d); cd $p; echo "$(basename $p) ..."; git pull; done
+for d in `find ~/src -name '.git'`
+do
+  p=$(dirname $d)
+  cd $p
+  echo
+  echo ========================================
+  echo "Updating $(basename $p) ..."
+  echo ========================================
+  git pull && git submodule update --init --recursive
+done
 
 #[ -z $1 ] && PATH='~/src'
 #
