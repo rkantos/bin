@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# print cleaned and uniq'd file list of zip archive root
+#
+# useful for removeing all files/folders of example.zip
+# $ list-archive example.zip | xargs rm -r
+
+listzip () {
+  unzip -l $1 |\
+    tail -n +4 |\
+    head -n -2 |\
+    awk '{ print $4; }'
+}
+
+listrar () {
+  unrar v $1 |\
+    tail -n +9 |\
+    head -n -3 |\
+    grep -v '%'
+}
+
+prettify () {
+  echo "$@" |\
+    sed -r 's/\/.*//' |\
+    sort | uniq
+}
+
+case ${1##*.} in
+  "zip")
+    prettify "$(listzip $1)"
+    ;;
+  "rar")
+    prettify "$(listrar)"
+    ;;
+  "tgz"|"txz"|"gz"|"xz")
+    prettify "$(tar -tf  $1)"
+    ;;
+  *)
+    echo ERROR: incompatible file type
+    exit 1
+    ;;
+esac
