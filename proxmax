@@ -1,0 +1,90 @@
+#!/bin/bash
+#
+# Proxy Manager Linux
+# opts: -t  set proxy for active terminal only
+
+CFGPATH='~/.proxman /usr/local/etc/proxman /etc/proxman'
+
+disable_proxy () {
+  [ -e ~/.proxy ] && rm ~/.proxy
+  gsettings set org.gnome.system.proxy mode 'none'
+}
+
+build_list () {
+  # echo "http_proxy\nhttps_proxy\nftp_proxy\nno_proxy"
+  return
+}
+
+set_local () {
+  LIST=build_list
+  for l in $LIST ; do
+    export $l
+  done
+}
+
+set_shell () {
+  LIST=build_list
+  [ -e ~/.proxy ] && rm ~/.proxy
+  for l in $LIST ; do
+    echo "export $l" >> ~/.proxy
+  done
+}
+
+set_wget () {
+  echo hi
+}
+
+set_apt () {
+  echo hi
+}
+
+set_gnome () {
+  if [ ! -z ${PAUTO:-} ] ; then
+    gsettings set org.gnome.system.proxy mode 'auto'
+    gsettings set org.gnome.system.proxy autoconfig-url $PAUTO
+  else
+    gsettings set org.gnome.system.proxy.http use-authentication false
+    if [ ! -z $NOPROXY ] ; then
+      # split by , ; build list: ['host1', 'host2', ..]
+      ignore=
+    fi
+
+    for proto in 'http https ftp' ; do
+      gsettings set org.gnome.system.proxy.$proto host $PHOST
+      if [ ! -z ${PPORT:-} ] ; then
+        gsettings set org.gnome.system.proxy.$proto port $PPORT
+      else
+        gsettings set org.gnome.system.proxy.$proto port 8080
+      fi
+      [ ! -z ${ignore:-} ] && gsettings set org.gnome.system.proxy.$proto ignore-hosts $ignore
+    done
+
+    conf=org.gnome.system.proxy.http
+    gsettings set org.gnome.system.proxy mode 'manual'
+    gsettings set org.gnome.system.proxy use-same-proxy true
+    gsettings set ${conf} enabled true
+    gsettings set ${conf} host $PHOST
+    gsettings set ${conf} port $PPORT
+    gsettings set ${conf} use-authentication false
+  fi
+}
+
+set_ntlm () {
+  echo hi
+}
+
+load () {
+    [ $? -lt 1 ] && echo "ERROR: no config supplied" && exit 1
+
+    [ $? -lt 1 ] && disable && exit 0
+
+    . /etc/proxyman/default
+    
+    for $p in $CFGPATH ; do
+      [ ! -e $p/$1 ] && continue
+
+      echo Loading config $1 from $p ..
+      . $p/$1
+      break
+    done
+}
