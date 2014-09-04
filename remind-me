@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# show a notification message at a specific time
+# $ remind-me at 'HH:MM' Some message &
+# $ remind-me in "2 hours 30 mins 5 secs" Some message &
+
+TIME=""
+if [ "$(echo $1 | grep '^at\|^in')" != "" ] ; then
+  opt=$1
+  echo $opt
+  shift
+  case $opt in
+    "at")
+      TIME=$(date -d "$1" "+%s")
+      ;;
+    "in")
+      TIME=$(date -d "now $1" "+%s")
+      ;;
+    *)
+      echo "ERROR: first parameter must be 'at' or 'in'"
+      echo "Usage: $0 [at HH:MM] [in '2 hours 1 min'] 'text'"
+      exit 1
+  esac
+
+  shift
+fi
+
+[ $# -gt 1 ] && echo "WARNING: parameter 'text' needs quotes!"
+
+if [ "$TIME" !=  "" ] ; then
+  delay=$(( $TIME - $(date +%s)))
+  sleep $delay
+fi
+
+ICON=/usr/share/icons/HighContrast/48x48/apps/text-editor.png
+notify-send --urgency=critical -t 15000 -i $ICON "#! Remind-me" "$1"
+
