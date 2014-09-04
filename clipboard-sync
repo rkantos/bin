@@ -1,0 +1,5 @@
+#!/bin/bash
+# to stop just use 'killall autocutsel'
+
+autocutsel -fork &
+autocutsel -selection PRIMARY -fork &
