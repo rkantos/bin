@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ $# -lt 1 ] ; then
+  echo No URL? Nothing to do ..
+  exit 1
+fi
+
+url=$1
+port='80'
+if [ $# -gt 1 ] ; then
+  port=$2
+fi
+
+while (true) ; do
+  nc -z -w 4 $url $port
+  [ $? -gt 0 ] && continue
+  echo -e "GET / HTTP/1.0\n" >&6
+  read <&6 html 2>/dev/null
+  exec 6>&-
+
+  if [ "${html:0:15}" == "HTTP/1.1 200 OK" ] ; then
+    break
+  else
+    sleep 10
+    continue
+  fi
+done
+
+echo URL is up. Happy Testing!
+exit 0
