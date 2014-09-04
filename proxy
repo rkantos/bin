@@ -1,5 +1,12 @@
 #!/bin/bash
 
 screen -S proxy ssh -C2qTnN -D 8081 spoof@givemegames.de
+screen -dmS ff firefox -p proxy -no-remote
 
-screen -dmS ff proxychains firefox
+echo "Proxy started on localhost:8081"
+echo "Press [ENTER] to quit"
+read -s
+
+screen -X -S ff quit
+screen -X -S proxy quit
+
